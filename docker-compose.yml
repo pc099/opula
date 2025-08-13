@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # Frontend Dashboard
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://backend:3001
+    networks:
+      - aiops-network
+
+  # Backend API Gateway
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://aiops:password@postgres:5432/aiops_db
+      - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - JWT_SECRET=your-jwt-secret-key
+    networks:
+      - aiops-network
+
+  # AI Agents Service
+  agents:
+    build:
+      context: ./agents
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - influxdb
+    environment:
+      - DATABASE_URL=postgresql://aiops:password@postgres:5432/aiops_db
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=your-influxdb-token
+    networks:
+      - aiops-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=aiops_db
+      - POSTGRES_USER=aiops
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - aiops-network
+
+  # Redis for Event Bus and Caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - aiops-network
+
+  # InfluxDB for Time Series Data
+  influxdb:
+    image: influxdb:2.6-alpine
+    environment:
+      - INFLUXDB_DB=aiops_metrics
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=password
+      - INFLUXDB_USER=aiops
+      - INFLUXDB_USER_PASSWORD=password
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    ports:
+      - "8086:8086"
+    networks:
+      - aiops-network
+
+  # Elasticsearch for Logging
+  elasticsearch:
+    image: elasticsearch:8.7.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - aiops-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  influxdb_data:
+  elasticsearch_data:
+
+networks:
+  aiops-network:
+    driver: bridge

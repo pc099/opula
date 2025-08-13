@@ -1,0 +1,33 @@
+{
+  "name": "aiops-platform",
+  "version": "1.0.0",
+  "description": "AIOps Platform - Intelligent DevOps Automation System",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "test:e2e": "node scripts/run-complete-e2e-tests.js",
+    "test:e2e:frontend": "node scripts/run-complete-e2e-tests.js --frontend-only",
+    "test:e2e:backend": "node scripts/run-complete-e2e-tests.js --backend-only",
+    "test:e2e:agents": "node scripts/run-complete-e2e-tests.js --agents-only",
+    "test:e2e:integration": "node scripts/run-complete-e2e-tests.js --integration-only",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "setup": "npm install && npm run build",
+    "clean": "npm run clean --workspaces && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

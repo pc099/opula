@@ -1,0 +1,143 @@
+{
+  "id": "incident_response_agent_1",
+  "name": "Production Incident Response Agent",
+  "type": "incident_response",
+  "enabled": true,
+  "automation_level": "semi_auto",
+  "thresholds": {
+    "correlation_interval": 60,
+    "auto_resolution_enabled": true,
+    "escalation_enabled": true,
+    "max_resolution_attempts": 3,
+    "escalation_delay_critical": 0,
+    "escalation_delay_high": 300,
+    "escalation_delay_medium": 900,
+    "classification_confidence_threshold": 0.7
+  },
+  "approval_required": true,
+  "integrations": [
+    {
+      "name": "incident_response",
+      "type": "incident_response",
+      "config": {
+        "model_path": "/app/models/incident_classifier.joblib",
+        "monitoring_systems": [
+          "prometheus",
+          "grafana",
+          "alertmanager",
+          "datadog",
+          "newrelic"
+        ],
+        "notification_channels": [
+          "slack",
+          "email",
+          "pagerduty",
+          "teams"
+        ],
+        "runbook_directory": "/app/runbooks",
+        "enable_ml_classification": true,
+        "enable_auto_correlation": true
+      },
+      "enabled": true
+    },
+    {
+      "name": "kubernetes",
+      "type": "kubernetes",
+      "config": {
+        "cluster_endpoint": "https://kubernetes.default.svc",
+        "namespace": "default",
+        "kubeconfig_path": "/app/config/kubeconfig",
+        "enable_pod_management": true,
+        "enable_deployment_management": true,
+        "enable_service_management": true
+      },
+      "enabled": true
+    },
+    {
+      "name": "prometheus",
+      "type": "monitoring",
+      "config": {
+        "endpoint": "http://prometheus:9090",
+        "query_timeout": 30,
+        "enable_metric_queries": true,
+        "enable_alert_queries": true
+      },
+      "enabled": true
+    },
+    {
+      "name": "grafana",
+      "type": "monitoring",
+      "config": {
+        "endpoint": "http://grafana:3000",
+        "api_key": "${GRAFANA_API_KEY}",
+        "enable_dashboard_queries": true,
+        "enable_annotation_creation": true
+      },
+      "enabled": true
+    },
+    {
+      "name": "slack",
+      "type": "notification",
+      "config": {
+        "webhook_url": "${SLACK_WEBHOOK_URL}",
+        "channel": "#incidents",
+        "username": "AIOps Incident Bot",
+        "enable_thread_updates": true
+      },
+      "enabled": true
+    },
+    {
+      "name": "pagerduty",
+      "type": "notification",
+      "config": {
+        "integration_key": "${PAGERDUTY_INTEGRATION_KEY}",
+        "service_id": "${PAGERDUTY_SERVICE_ID}",
+        "enable_auto_resolve": true
+      },
+      "enabled": true
+    }
+  ],
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "metadata": {
+    "description": "Handles automated incident detection, correlation, classification, and resolution for production environments",
+    "owner": "devops-team",
+    "environment": "production",
+    "version": "1.0.0",
+    "supported_incident_types": [
+      "service_down",
+      "high_latency",
+      "resource_exhaustion",
+      "database_issue",
+      "network_issue",
+      "security_incident",
+      "deployment_failure",
+      "configuration_error"
+    ],
+    "runbook_capabilities": [
+      "service_restart",
+      "horizontal_scaling",
+      "resource_cleanup",
+      "configuration_rollback",
+      "traffic_routing",
+      "cache_clearing"
+    ],
+    "escalation_contacts": [
+      {
+        "level": "primary",
+        "contact": "devops-oncall@company.com",
+        "method": "pagerduty"
+      },
+      {
+        "level": "secondary",
+        "contact": "engineering-leads@company.com",
+        "method": "email"
+      },
+      {
+        "level": "executive",
+        "contact": "cto@company.com",
+        "method": "phone"
+      }
+    ]
+  }
+}

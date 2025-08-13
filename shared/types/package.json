@@ -1,0 +1,17 @@
+{
+  "name": "aiops-platform-shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for AIOps Platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "typescript": "^4.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  }
+}
